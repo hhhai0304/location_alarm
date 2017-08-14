@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.CreateAlarmActivity">
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/default_padding"
+            tools:layout_editor_absoluteX="8dp"
+            tools:layout_editor_absoluteY="493dp">
+
+            <TextView
+                style="@style/PickLocationTitle"
+                android:layout_width="match_parent"
+                android:layout_marginTop="0dp"
+                android:text="@string/txt_title" />
+
+            <EditText
+                android:id="@+id/edt_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                style="@style/PickLocationTitle"
+                android:layout_width="match_parent"
+                android:text="@string/txt_title_location" />
+
+            <TextView
+                android:id="@+id/txt_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/default_padding"
+                android:text="@string/txt_hint_location" />
+
+            <Switch
+                android:id="@+id/sw_alarm"
+                style="@style/PickLocationTitle"
+                android:layout_width="match_parent"
+                android:checked="true"
+                android:text="@string/switch_alarm" />
+
+            <RelativeLayout
+                android:id="@+id/ll_alarm"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:id="@+id/btn_pick_alarm_sound"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:background="@android:color/transparent"
+                    android:drawablePadding="@dimen/drawable_padding"
+                    android:drawableStart="@drawable/ic_alarm"
+                    android:text="@string/alarm_sound"
+                    android:textAllCaps="false" />
+
+                <CheckBox
+                    android:id="@+id/chk_vibrate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBaseline="@+id/btn_pick_alarm_sound"
+                    android:layout_alignParentEnd="true"
+                    android:checked="true"
+                    android:text="@string/alarm_vibrate" />
+            </RelativeLayout>
+
+            <Switch
+                android:id="@+id/sw_call"
+                style="@style/PickLocationTitle"
+                android:layout_width="match_parent"
+                android:text="@string/switch_call" />
+
+            <LinearLayout
+                android:id="@+id/ll_call"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <EditText
+                    android:id="@+id/edt_call_contact"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="phone" />
+
+                <Button
+                    android:id="@+id/btn_call_contact"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Button" />
+
+            </LinearLayout>
+
+            <Switch
+                android:id="@+id/sw_sms"
+                style="@style/PickLocationTitle"
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:text="@string/switch_sms" />
+
+            <LinearLayout
+                android:id="@+id/ll_sms"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/edt_sms_contact"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:inputType="phone" />
+
+                    <Button
+                        android:id="@+id/btn_sms_contact"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Button" />
+
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/edt_sms_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:text="Name" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_done"
+        android:layout_margin="@dimen/fab_margin"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/ic_done"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</android.support.constraint.ConstraintLayout>

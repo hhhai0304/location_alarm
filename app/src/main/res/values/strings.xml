@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">Location Alarm</string>
+
+    <!-- Activity Titles -->
+    <string name="title_activity_location_picker">Click to choose your location radius</string>
+    <string name="title_activity_setting">Setting</string>
+    <string name="title_activity_create_alarm">Create New Alarm</string>
+
+    <!-- Create Alarm Screen -->
+    <string name="txt_title">Title</string>
+    <string name="txt_title_location">Your location</string>
+    <string name="txt_hint_location">Click here to pick your location</string>
+    <string name="switch_alarm">Alarm</string>
+    <string name="switch_sms">SMS</string>
+    <string name="switch_call">Call</string>
+    <string name="alarm_vibrate">Vibrate</string>
+    <string name="alarm_sound">Choose your alarm sound</string>
+    <string name="title_activity_test">TestActivity</string>
+    <string name="no_function_enable">You need to choose at least one function</string>
+    <string name="no_location_radius">You need to pick location radius</string>
+
+    <!-- Location Picker Screen -->
+    <string name="null_radius">Please click on map to choose your location radius</string>
+</resources>
