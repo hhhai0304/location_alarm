@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -20,6 +21,7 @@ import com.google.android.gms.maps.model.Circle;
 import com.h3solution.locationalarm.R;
 import com.h3solution.locationalarm.base.BaseActivity;
 import com.h3solution.locationalarm.model.Area;
+import com.h3solution.locationalarm.util.H3Application;
 import com.h3solution.locationalarm.util.UtilFunctions;
 
 import org.greenrobot.eventbus.EventBus;
@@ -96,6 +98,7 @@ public class CreateAlarmActivity extends BaseActivity {
         }
 
         if (isCreateNew) {
+            H3Application.getInstance().startGetLocation();
             Timber.i("isCreateNew = TRUE");
             startActivity(new Intent(this, PlacePickerActivity.class));
         }
@@ -198,7 +201,7 @@ public class CreateAlarmActivity extends BaseActivity {
         } else {
             realm.beginTransaction();
             Area area;
-            if (id.isEmpty()) {
+            if (TextUtils.isEmpty(id)) {
                 area = realm.createObject(Area.class, UtilFunctions.getNextId());
             } else {
                 area = realm.where(Area.class).equalTo("id", Integer.parseInt(id)).findFirst();

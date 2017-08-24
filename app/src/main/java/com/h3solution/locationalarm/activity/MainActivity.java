@@ -2,6 +2,7 @@ package com.h3solution.locationalarm.activity;
 
 import android.Manifest;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,7 +12,12 @@ import com.h3solution.locationalarm.R;
 import com.h3solution.locationalarm.adapter.MainAdapter;
 import com.h3solution.locationalarm.base.BaseActivity;
 import com.h3solution.locationalarm.model.Area;
+import com.h3solution.locationalarm.util.Config;
 import com.h3solution.locationalarm.util.H3Application;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 
@@ -51,10 +57,8 @@ public class MainActivity extends BaseActivity {
         super.onResume();
 
         if (EasyPermissions.hasPermissions(this, LOCATION_PERMISSIONS)) {
-//            if (!isServiceRunning(LocationService.class)) {
-//                startService(new Intent(this, LocationService.class));
-//            }
-//            startActivity(new Intent(this, LocationPickerActivity.class));
+            EventBus.getDefault().register(this);
+            H3Application.getInstance().startGetLocation();
         } else {
             EasyPermissions.requestPermissions(this, "Hello world?", 1, LOCATION_PERMISSIONS);
         } // TEST bitbucket
@@ -91,5 +95,12 @@ public class MainActivity extends BaseActivity {
     public void onViewClicked() {
         H3Application.getInstance().startGetLocation();
         startActivity(new Intent(MainActivity.this, CreateAlarmActivity.class));
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(Location location) {
+        Config.currentLocation = location;
+        H3Application.getInstance().stopGetLocation();
+        EventBus.getDefault().unregister(this);
     }
 }

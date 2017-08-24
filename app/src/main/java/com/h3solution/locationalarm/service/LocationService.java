@@ -15,6 +15,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.h3solution.locationalarm.util.Config;
 import com.h3solution.locationalarm.util.UtilFunctions;
 
 import org.greenrobot.eventbus.EventBus;
@@ -84,6 +85,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     @Override
     public void onLocationChanged(Location location) {
         Timber.i("onLocationChanged()");
+        Config.currentLocation = location;
         UtilFunctions.check(location);
         EventBus.getDefault().post(location);
     }

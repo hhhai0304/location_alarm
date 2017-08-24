@@ -21,4 +21,5 @@
 
     <!-- Location Picker Screen -->
     <string name="null_radius">Please click on map to choose your location radius</string>
+    <string name="edt_search_hint">Search here</string>
 </resources>
