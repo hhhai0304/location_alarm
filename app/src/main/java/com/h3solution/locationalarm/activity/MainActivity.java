@@ -14,6 +14,7 @@ import com.h3solution.locationalarm.base.BaseActivity;
 import com.h3solution.locationalarm.model.Area;
 import com.h3solution.locationalarm.util.Config;
 import com.h3solution.locationalarm.util.H3Application;
+import com.h3solution.locationalarm.util.Utils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -57,7 +58,7 @@ public class MainActivity extends BaseActivity {
         super.onResume();
 
         if (EasyPermissions.hasPermissions(this, LOCATION_PERMISSIONS)) {
-            EventBus.getDefault().register(this);
+            Utils.registerEventBus(this);
             H3Application.getInstance().startGetLocation();
         } else {
             EasyPermissions.requestPermissions(this, "Hello world?", 1, LOCATION_PERMISSIONS);
@@ -98,9 +99,10 @@ public class MainActivity extends BaseActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(Location location) {
+    public void onGetLocation(Location location) {
+        Timber.i(location.toString());
         Config.currentLocation = location;
         H3Application.getInstance().stopGetLocation();
-        EventBus.getDefault().unregister(this);
+        Utils.unregisterEventBus(this);
     }
 }

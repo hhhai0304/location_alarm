@@ -27,6 +27,24 @@ public class Area extends RealmObject implements Parcelable {
     private String smsContact;
     private String smsContent;
 
+    @Override
+    public String toString() {
+        return "Area{" +
+                "id=" + id +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", radius=" + radius +
+                ", isEnabled=" + isEnabled +
+                ", isAlarm=" + isAlarm +
+                ", isCall=" + isCall +
+                ", isSms=" + isSms +
+                ", title='" + title + '\'' +
+                ", callContact='" + callContact + '\'' +
+                ", smsContact='" + smsContact + '\'' +
+                ", smsContent='" + smsContent + '\'' +
+                '}';
+    }
+
     public String getLocationDetail() {
         return "Latitude: " + latitude + "\nLongitude: " + longitude + "\nRadius: " + radius;
     }

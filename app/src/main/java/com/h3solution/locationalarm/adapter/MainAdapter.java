@@ -15,7 +15,7 @@ import com.h3solution.locationalarm.activity.CreateAlarmActivity;
 import com.h3solution.locationalarm.base.BaseActivity;
 import com.h3solution.locationalarm.model.Area;
 import com.h3solution.locationalarm.util.H3Application;
-import com.h3solution.locationalarm.util.UtilFunctions;
+import com.h3solution.locationalarm.util.Utils;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -53,8 +53,8 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ItemViewHolder
             @Override
             public void onClick(View v) {
                 Area thisArea = (Area) v.getTag();
+                EventBus.getDefault().postSticky(thisArea);
                 context.startActivity(new Intent(context, CreateAlarmActivity.class));
-                EventBus.getDefault().post(thisArea);
             }
         });
 
@@ -79,7 +79,10 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ItemViewHolder
 
                 if (isChecked) {
                     H3Application.getInstance().startGetLocation();
-                    UtilFunctions.enabledAreas.add(thisArea);
+                    Utils.enabledAreas.add(thisArea);
+                } else {
+                    Utils.enabledAreas.remove(thisArea);
+                    Utils.stopServiceIfNull();
                 }
             }
         });

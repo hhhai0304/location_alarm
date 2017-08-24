@@ -31,28 +31,27 @@ public class H3Application extends Application {
     }
 
     public void startGetLocation() {
-        Timber.i("START get location service");
         if (!isServiceRunning(LocationService.class)) {
+            Timber.i("START get location service");
             startService(new Intent(this, LocationService.class));
         }
     }
 
     public void stopGetLocation() {
-        Timber.i("STOP get location service");
         if (isServiceRunning(LocationService.class)) {
+            Timber.i("STOP get location service");
             stopService(new Intent(this, LocationService.class));
         }
     }
 
+    @SuppressWarnings("deprecation")
     private boolean isServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (serviceClass.getName().equals(service.service.getClassName())) {
-                Timber.i("Service IS running");
                 return true;
             }
         }
-        Timber.i("Service ISN'T running");
         return false;
     }
 }

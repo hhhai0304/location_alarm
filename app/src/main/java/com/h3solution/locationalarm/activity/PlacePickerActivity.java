@@ -22,6 +22,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -32,6 +33,7 @@ import com.h3solution.locationalarm.base.BaseActivity;
 import com.h3solution.locationalarm.util.Config;
 import com.h3solution.locationalarm.util.H3Application;
 import com.h3solution.locationalarm.util.SharedPreferencesUtils;
+import com.h3solution.locationalarm.util.Utils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -61,7 +63,7 @@ public class PlacePickerActivity extends BaseActivity implements OnMapReadyCallb
         getSupportActionBar().hide();
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         initFragments();
-        EventBus.getDefault().register(this);
+        Utils.registerEventBus(this);
     }
 
     private void initFragments() {
@@ -88,22 +90,22 @@ public class PlacePickerActivity extends BaseActivity implements OnMapReadyCallb
 
     @Override
     public void onMapReady(GoogleMap map) {
-        googleMap = map;
-        googleMap.getUiSettings().setMyLocationButtonEnabled(false);
-
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-
-        googleMap.setMyLocationEnabled(true);
-
+        googleMap = map;
+        googleMap.getUiSettings().setMyLocationButtonEnabled(false);
+        googleMap.setMyLocationEnabled(false);
         googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
                 refreshCircleOnMap(latLng);
             }
         });
-
+        LatLng prevPicked = EventBus.getDefault().getStickyEvent(LatLng.class);
+        if (prevPicked != null) {
+            refreshCircleOnMap(prevPicked);
+        }
         moveCameraToCurrentLocation();
     }
 
@@ -129,9 +131,9 @@ public class PlacePickerActivity extends BaseActivity implements OnMapReadyCallb
     }
 
     private void moveCameraToCurrentLocation(LatLng latLng) {
-        if (Config.currentLocation != null) {
+        if (latLng != null) {
             if (currentLocationMarker == null) {
-                pickedMarker = googleMap.addMarker(new MarkerOptions().draggable(false));
+                currentLocationMarker = googleMap.addMarker(markerType(latLng));
             }
             currentLocationMarker.setPosition(latLng);
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17);
@@ -143,13 +145,13 @@ public class PlacePickerActivity extends BaseActivity implements OnMapReadyCallb
     public void onMessageEvent(Location location) {
         Config.currentLocation = location;
         H3Application.getInstance().stopGetLocation();
-        EventBus.getDefault().unregister(this);
+        Utils.unregisterEventBus(this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        EventBus.getDefault().unregister(this);
+        Utils.unregisterEventBus(this);
     }
 
     private void refreshCircleOnMap(LatLng latLng) {
@@ -169,6 +171,14 @@ public class PlacePickerActivity extends BaseActivity implements OnMapReadyCallb
                 .strokeColor(ContextCompat.getColor(PlacePickerActivity.this, R.color.mapStroke))
                 .fillColor(ContextCompat.getColor(PlacePickerActivity.this, R.color.mapSolid))
                 .clickable(false));
+    }
+
+    public static MarkerOptions markerType(LatLng latLng) {
+        MarkerOptions option = new MarkerOptions();
+        option.position(latLng);
+        option.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+        option.draggable(false);
+        return option;
     }
 
     @OnClick({R.id.fab_location_done, R.id.fab_my_location})

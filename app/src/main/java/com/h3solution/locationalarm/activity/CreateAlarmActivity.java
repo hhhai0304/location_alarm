@@ -18,15 +18,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.LatLng;
 import com.h3solution.locationalarm.R;
 import com.h3solution.locationalarm.base.BaseActivity;
 import com.h3solution.locationalarm.model.Area;
 import com.h3solution.locationalarm.util.H3Application;
-import com.h3solution.locationalarm.util.UtilFunctions;
+import com.h3solution.locationalarm.util.Utils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnCheckedChanged;
@@ -35,9 +38,10 @@ import io.realm.Realm;
 import pub.devrel.easypermissions.EasyPermissions;
 import timber.log.Timber;
 
-public class CreateAlarmActivity extends BaseActivity {
+public class CreateAlarmActivity extends BaseActivity implements EasyPermissions.PermissionCallbacks {
     final String CALL_PERMISSION = Manifest.permission.CALL_PHONE;
-    final int CONTACT_CODE = 110;
+    final int CALL_PERMISSION_CODE = 110;
+    final int CONTACT_PICK_CODE = 111;
 
     @BindView(R.id.edt_title)
     EditText edtTitle;
@@ -84,7 +88,6 @@ public class CreateAlarmActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle(R.string.title_activity_create_alarm);
-        Timber.i("onCreate()");
 
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -92,11 +95,7 @@ public class CreateAlarmActivity extends BaseActivity {
         realm = Realm.getDefaultInstance();
 
         isCreateNew = true;
-
-        if (!EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().register(this);
-        }
-
+        Utils.registerEventBus(this);
         if (isCreateNew) {
             H3Application.getInstance().startGetLocation();
             Timber.i("isCreateNew = TRUE");
@@ -126,7 +125,7 @@ public class CreateAlarmActivity extends BaseActivity {
             if (EasyPermissions.hasPermissions(this, CALL_PERMISSION)) {
                 llCall.setVisibility(View.VISIBLE);
             } else {
-                EasyPermissions.requestPermissions(this, "Hello world?", 1, CALL_PERMISSION);
+                EasyPermissions.requestPermissions(this, "Cho quyền cái đeeee?", CALL_PERMISSION_CODE, CALL_PERMISSION);
             }
         } else {
             llCall.setVisibility(View.GONE);
@@ -135,7 +134,19 @@ public class CreateAlarmActivity extends BaseActivity {
 
     private void getContact() {
         Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
-        startActivityForResult(intent, CONTACT_CODE);
+        intent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE);
+        startActivityForResult(intent, CONTACT_PICK_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case CONTACT_PICK_CODE:
+                    edtCallContact.setText(Utils.getFromNumberFromUri(this, data.getData()));
+                    break;
+            }
+        }
     }
 
     @Override
@@ -149,6 +160,7 @@ public class CreateAlarmActivity extends BaseActivity {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.txt_location:
+                EventBus.getDefault().postSticky(new LatLng(area.getLatitude(), area.getLongitude()));
                 startActivity(new Intent(this, PlacePickerActivity.class));
                 break;
             case R.id.btn_pick_alarm_sound:
@@ -202,7 +214,7 @@ public class CreateAlarmActivity extends BaseActivity {
             realm.beginTransaction();
             Area area;
             if (TextUtils.isEmpty(id)) {
-                area = realm.createObject(Area.class, UtilFunctions.getNextId());
+                area = realm.createObject(Area.class, Utils.getNextId());
             } else {
                 area = realm.where(Area.class).equalTo("id", Integer.parseInt(id)).findFirst();
             }
@@ -247,32 +259,57 @@ public class CreateAlarmActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        Timber.i("onDestroy() -> EventBus unregister");
-        if (EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().unregister(this);
-        }
+        Utils.unregisterEventBus(this);
         super.onDestroy();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void locationPicked(Circle circle) {
-        isCreateNew = true;
         if (area == null) {
+            Timber.i("locationPicked() -> NULL area");
             area = new Area();
         }
-        area.setId(UtilFunctions.getNextId());
-        area.setLatitude(circle.getCenter().latitude);
-        area.setLongitude(circle.getCenter().longitude);
-        area.setRadius(circle.getRadius());
+        try {
+            area.setLatitude(circle.getCenter().latitude);
+            area.setLongitude(circle.getCenter().longitude);
+            area.setRadius(circle.getRadius());
+        } catch (IllegalStateException e) {
+            Timber.e("locationPicked() -> " + e.getMessage());
+            realm.beginTransaction();
+            area.setLatitude(circle.getCenter().latitude);
+            area.setLongitude(circle.getCenter().longitude);
+            area.setRadius(circle.getRadius());
+            realm.commitTransaction();
+        }
+
         setupLocationData(area);
         Timber.i("locationPicked() " + area.toString());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void editArea(Area area) {
+        //TODO bó tay, chuyển về xài intent
         isCreateNew = false;
-        this.area = area;
+        this.area = realm.where(Area.class).equalTo("id", area.getId()).findFirst();
         setupLocationData(area);
         Timber.i("editArea() " + area.toString());
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+        switch (requestCode) {
+            case CALL_PERMISSION_CODE:
+                onCallEnabled();
+                break;
+        }
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
+        switch (requestCode) {
+            case CALL_PERMISSION_CODE:
+                swCall.setChecked(false);
+                break;
+        }
     }
 }
